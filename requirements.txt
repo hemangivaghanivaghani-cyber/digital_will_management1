@@ -3,3 +3,7 @@ gunicorn
 web3
 opencv-python-headless
 google-generativeai
+Flask-SQLAlchemy
+flask-cors
+fpdf
+PyMySQL
