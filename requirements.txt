@@ -2,3 +2,4 @@ Flask
 gunicorn
 web3
 opencv-python-headless
+google-generativeai
