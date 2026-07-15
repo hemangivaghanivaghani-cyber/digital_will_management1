@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Will Vault</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --sidebar-bg: #0f172a;
+            --bg-light: #f8fafc;
+            --slate-500: #64748b;
+            --white: #ffffff;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .sidebar h2 { 
+            color: white; 
+            margin-bottom: 30px; 
+            font-size: 22px; 
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-link {
+            display: block;
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: #1e293b;
+            color: white;
+        }
+
+        
+        .main-wrapper {
+            margin-left: 260px; 
+            padding: 40px;
+            width: 100%;
+        }
+
+        .content-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+        }
+
+        .status-badge {
+            background: #ecfdf5;
+            color: #10b981;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .blockchain-steps {
+            display: flex;
+            justify-content: space-around;
+            padding: 25px;
+            background: #f1f5f9;
+            border-radius: 15px;
+            border: 1px dashed #cbd5e1;
+            text-align: center;
+        }
+
+        .step-label {
+            font-size: 11px; 
+            font-weight: bold; 
+            color: var(--slate-500);
+            margin-bottom: 5px;
+        }
+
+        .step-status {
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>🛡️ Will Vault</h2>
+        <nav>
+            <a href="/dashboard" class="nav-link active">🏠 Dashboard</a>
+            <a href="/create-will" class="nav-link">➕ Create Will</a>
+            <a href="/audit-report" class="nav-link">📜 Audit Logs</a>
+        </nav>
+        <div style="margin-top: auto;">
+            <a href="/logout" class="nav-link" style="color: #f87171;">🚪 Logout</a>
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        
+        <div class="content-card" style="border-left: 8px solid var(--primary); display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1>Welcome Back, Hemangi! 👋</h1>
+                <p style="color: var(--slate-500);">Secure your legacy with encrypted digital vault storage.</p>
+                <small style="color: var(--slate-500);">Last login: Today, Jan 19, 2026</small>
+            </div>
+            <span class="status-badge">● MFA VERIFIED</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
+            <div class="content-card">
+                <h3>📜 Will Management</h3>
+                <p style="margin: 15px 0; color: var(--slate-500);">Draft your digital will and secure your assets using AES-256 encryption.</p>
+                <a href="/create-will" class="btn">Create / Update Will</a>
+            </div>
+
+            <div class="content-card">
+                <h3>🔐 Security Center</h3>
+                <p style="margin: 15px 0; color: var(--slate-500);">Monitor account activity and track encryption audit logs.</p>
+                <a href="/audit-report" class="btn" style="background-color: var(--slate-500);">View Audit Logs</a>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h3 style="margin-bottom: 20px;">⛓️ Blockchain Lifecycle Tracking</h3>
+            <div class="blockchain-steps">
+                <div>
+                    <p class="step-label">STEP 2</p>
+                    <span class="step-status" style="color: #10b981;">Encrypted ✅</span>
+                </div>
+                <div>
+                    <p class="step-label">STEP 3</p>
+                    <span class="step-status" style="color: var(--primary);">IPFS Uploaded ☁️</span>
+                </div>
+                <div>
+                    <p class="step-label">STEP 4</p>
+                    <span class="step-status" style="color: #94a3b8;">Lawyer Review ⚖️</span>
+                </div>
+            </div>
+        </div>
+
+        <p style="text-align: center; font-size: 12px; color: var(--slate-500); margin-top: 20px;">
+            🛡️ Certified Secure System | End-to-End Encrypted Data Storage
+        </p>
+
+    </div>
+
+</body>
+</html>

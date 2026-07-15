@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biometric Verification</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fe; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; max-width: 450px; width: 100%; }
+        h2 { color: #5d5be5; margin-bottom: 10px; }
+        p { color: #666; margin-bottom: 20px; }
+        video { width: 100%; border-radius: 10px; border: 3px solid #5d5be5; background: #000; }
+        #capture { background: #5d5be5; color: white; border: none; padding: 12px 30px; font-size: 16px; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 20px; width: 100%; }
+        #capture:hover { background: #4a48c8; }
+        .loading-spinner { display: none; margin-top: 15px; color: #5d5be5; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Biometric Verification</h2>
+    <p>Hello Hemangi, please look at the camera to verify your identity.</p>
+    
+    <video id="video" autoplay></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+    
+    <button id="capture">Scan & Login</button>
+    <div id="loading" class="loading-spinner">Verifying identity, please wait...</div>
+</div>
+
+<script>
+    const video = document.getElementById('video');
+    const captureButton = document.getElementById('capture');
+    const loadingText = document.getElementById('loading');
+
+    // Access Camera
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => { video.srcObject = stream; })
+        .catch(err => { alert("Camera access denied or not found!"); });
+
+    captureButton.addEventListener('click', () => {
+        const canvas = document.getElementById('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        
+        const imageData = canvas.toDataURL('image/jpeg');
+        
+        captureButton.style.display = 'none';
+        loadingText.style.display = 'block';
+
+        fetch('/verify-biometric', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: imageData })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirect;
+            } else {
+                alert("Verification Failed: " + data.message);
+                captureButton.style.display = 'block';
+                loadingText.style.display = 'none';
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Server Error!");
+            captureButton.style.display = 'block';
+            loadingText.style.display = 'none';
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+
+        ==========================================
+        OFFICIAL DIGITAL WILL - SECURE VAULT
+        ==========================================
+        TESTATOR NAME   : viya
+        AADHAR NO       : 882255001678
+        BENEFICIARY     : Hemangivaghanivaghani@gmail.com
+        BLOCKCHAIN HASH : QmZcpqTcqPJp3R1azpFTo4zEFGxr882RJkoCQ14GyU8JUK
+        STATUS          : VERIFIED & RELEASED
+        DATE            : 2026-02-16
+        ------------------------------------------
+        WILL CONTENT:
+        U2FsdGVkX1+Ohpdl91HwiDG/kL2PfVMQ6hoeW4lRuXk=
+        ==========================================
+        

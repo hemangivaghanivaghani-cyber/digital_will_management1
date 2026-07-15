@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawyer Approval Dashboard</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 1100px; margin: 0 auto; }
+        h2 { color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; }
+        th, td { padding: 15px; border: 1px solid #eee; text-align: left; }
+        th { background: #007bff; color: white; text-transform: uppercase; font-size: 13px; }
+        .btn { padding: 8px 15px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 4px; text-decoration: none; display: inline-block; font-weight: bold; font-size: 13px; transition: 0.3s; }
+        .btn:hover { background: #218838; transform: translateY(-1px); }
+        .btn-waiting { background: #6c757d; cursor: not-allowed; }
+        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-partial { background: #d1ecf1; color: #0c5460; }
+        .status-verified { background: #d4edda; color: #155724; }
+        .verified-text { color: #28a745; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>⚖️ Lawyer Approval Portal</h2>
+        <p style="color: #64748b;">Review metadata and provide multi-signature blockchain approval.</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Testator Name</th>
+                    <th>IPFS Hash (Immutable Link)</th>
+                    <th>Approval Progress</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for will in wills %}
+                <tr>
+                    <td style="font-weight: 600;">{{ will.testator_name }}</td>
+                    <td>
+                        <a href="https://gateway.pinata.cloud/ipfs/{{ will.blockchain_hash }}" target="_blank" style="color: #007bff; text-decoration: none;">
+                            📄 View Encrypted Will
+                        </a>
+                    </td>
+                    <td>
+                        {% if will.status == 'Pending' %}
+                            <span class="status-badge status-pending">⏳ Waiting for Lawyer 1</span>
+                        {% elif will.status == 'Lawyer 1 Approved' %}
+                            <span class="status-badge status-partial">🌗 Waiting for Lawyer 2</span>
+                        {% else %}
+                            <span class="status-badge status-verified">✅ Fully Verified</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if will.status != 'Verified & Approved' %}
+                            
+                            {% if will.status == 'Pending' %}
+                                <a href="{{ url_for('approve', will_id=will.id) }}" class="btn">Approve as Lawyer 1</a>
+                            
+                            {% elif will.status == 'Lawyer 1 Approved' %}
+                                <a href="{{ url_for('approve', will_id=will.id) }}" class="btn" style="background: #17a2b8;">Approve as Lawyer 2</a>
+                            
+                            {% endif %}
+
+                        {% else %}
+                            <span class="verified-text">✅ Verified on Blockchain</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <br>
+        <a href="/logout" style="color: #dc3545; text-decoration: none; font-weight: bold;">🚪 Logout</a>
+    </div>
+</body>
+</html>

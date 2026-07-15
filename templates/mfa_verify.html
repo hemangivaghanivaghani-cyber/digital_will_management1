@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MFA Verification | Secure Vault</title>
+    
+    <style>
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a) !important;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #1e293b;
+        }
+
+        .auth-container {
+            background: white !important;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .logo-box { font-size: 50px; margin-bottom: 20px; }
+        
+        h2 { font-size: 24px; margin-bottom: 10px; font-weight: 800; }
+        
+        p { color: #64748b; margin-bottom: 30px; font-size: 15px; }
+
+        .form-group { text-align: left; margin-bottom: 20px; }
+        
+        label { font-weight: 700; font-size: 14px; display: block; margin-bottom: 8px; }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1.5rem;
+            text-align: center;
+            letter-spacing: 10px;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .footer-text { margin-top: 25px; font-size: 14px; color: #64748b; }
+        
+        .footer-text a { color: #2563eb; text-decoration: none; font-weight: 700; }
+    </style>
+</head>
+<body>
+<div class="auth-container">
+        <div class="logo-box">🔐</div>
+        <h2>MFA Verification</h2>
+        <p>Please enter the 4-digit security code sent to your email.</p>
+        
+        <form action="/verify-otp" method="POST">
+            <div class="form-group">
+                <label>Security Code (OTP)</label>
+                <input type="text" name="otp" placeholder="0000" maxlength="4" required>
+            </div>
+            
+            <button type="submit" class="btn-primary">Verify & Login</button>
+        </form>
+        
+        <div class="footer-text">
+            Didn't receive the code? <a href="/">Back to Login</a>
+        </div>
+    </div>
+
+</body>
+</html>

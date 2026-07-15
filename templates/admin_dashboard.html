@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Identity Oracle & Analytics</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .dms-card { border-left: 5px solid #ef4444 !important; background: #fff5f5; margin-top: 30px; margin-bottom: 30px; }
+        .btn-dms { background-color: #ef4444; color: white; border: none; font-weight: bold; padding: 6px 15px; border-radius: 6px; }
+        .btn-dms:hover { background-color: #dc2626; color: white; transform: scale(1.02); transition: 0.3s; }
+        .btn-active-manual { font-weight: bold; padding: 6px 15px; border-radius: 6px; }
+        .dms-loader { font-size: 0.85rem; font-weight: bold; color: #dc3545; display: none; margin-top: 8px; }
+        .loader-text { font-size: 0.85rem; font-weight: bold; color: #0d6efd; display: none; }
+        .status-msg { font-size: 0.85rem; margin-top: 5px; font-weight: bold; }
+        code { color: #d63384; background: #f8f9fa; padding: 2px 4px; border-radius: 4px; }
+        .btc-seal { border-left: 3px solid #f7931a; background: #fff9f0; padding: 5px; border-radius: 0 4px 4px 0; }
+        .stat-card { transition: transform 0.3s; border: none; border-radius: 15px; }
+        .stat-card:hover { transform: translateY(-5px); }
+        .gas-card { background: #f8f9fa; border-radius: 10px; padding: 10px; border: 1px solid #dee2e6; }
+        .pulse-green { animation: blinker 1.5s linear infinite; color: #22c55e; font-weight: bold; }
+        @keyframes blinker { 50% { opacity: 0.3; } }
+        .history-card { border-left: 5px solid #6c757d !important; background: #f8f9fa; margin-bottom: 50px; }
+        
+        /* New Style for Polygon Link Box */
+        .blockchain-link-box {
+            background: #eef2ff;
+            border: 1px dashed #0d6efd;
+            border-radius: 6px;
+            padding: 8px;
+            margin-top: 10px;
+            display: none; /* શરૂઆતમાં છુપાયેલું રહેશે */
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="progress" style="height: 4px; border-radius: 0;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width: 100%"></div>
+    </div>
+    <div class="bg-dark text-white px-3 py-1 d-flex justify-content-between shadow-sm" style="font-size: 10px; font-family: monospace;">
+        <span>NODE: <span class="text-success">POLYGON-AMOY-ONLINE</span></span>
+        <span>BLOCK: #19283746</span>
+        <span class="pulse-green">● LATENCY: 22ms</span>
+    </div>
+
+    <nav class="navbar navbar-dark bg-dark border-top border-secondary">
+        <div class="container">
+            <a class="navbar-brand" href="#">🛡️ Admin Control Panel</a>
+            <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="gas-card mb-4 shadow-sm d-flex justify-content-around text-center">
+            <div><small class="text-muted d-block">Network Fee (Gas)</small><strong class="text-primary">2.4 Gwei</strong></div>
+            <div style="border-left: 1px solid #ddd;"></div>
+            <div><small class="text-muted d-block">TPS (Trans. Per Sec)</small><strong class="text-primary">14.2</strong></div>
+            <div style="border-left: 1px solid #ddd;"></div>
+            <div><small class="text-muted d-block">Node Health</small><strong class="text-success">Optimal</strong></div>
+        </div>
+
+        <h2 class="mb-4">📊 System Analytics</h2>
+        <div class="row mb-5">
+            <div class="col-md-3">
+                <div class="card stat-card shadow-sm bg-primary text-white mb-3">
+                    <div class="card-body"><h6>Total Wills</h6><h2>{{ wills|length + active_wills|length }}</h2></div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card shadow-sm bg-success text-white mb-3">
+                    <div class="card-body"><h6>Active / Released</h6><h2>{{ active_wills|length }}</h2></div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card shadow-sm bg-warning text-dark mb-3">
+                    <div class="card-body"><h6>Pending Verification</h6><h2>{{ wills|length }}</h2></div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card shadow-sm bg-info text-white mb-3">
+                    <div class="card-body"><h6>Nodes Sync</h6><h2>99.9%</h2></div>
+                </div>
+            </div>
+            <div class="col-md-6 mt-3">
+                <div class="card shadow-sm border-0 p-3">
+                    <h6 class="text-center small fw-bold">Will Status Distribution</h6>
+                    <canvas id="statusChart" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6 mt-3">
+                <div class="card shadow-sm border-0 p-3">
+                    <h6 class="text-center small fw-bold">Verification Flow Accuracy</h6>
+                    <canvas id="syncChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="mt-5 mb-4">✅ Live User Status</h2>
+        <div class="card shadow border-0 active-card">
+            <div class="card-body">
+                <h5 class="card-title text-success"><i class="fas fa-user-check"></i> Active Users (Safe Mode)</h5>
+                <table class="table table-hover mt-3 align-middle">
+                    <thead class="table-success">
+                        <tr>
+                            <th>User Name</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Last Activity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in active_users_list %}
+                        <tr>
+                            <td><strong>{{ user.testator_name }}</strong></td>
+                            <td>{{ user.user_email }}</td>
+                            <td><span class="badge rounded-pill bg-success">Active & Safe</span></td>
+                            <td><span class="text-muted small">Recently Active</span></td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="4" class="text-center py-3 text-muted">No active users currently in safe zone.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <h2 class="mt-5 mb-4">🛡️ Dead Man's Switch Monitoring</h2>
+        <div class="card shadow border-0 dms-card">
+            <div class="card-body">
+                <h5 class="card-title text-danger">Inactive Accounts (Trigger Unlocked)</h5>
+                <table class="table table-hover mt-3 align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>User Name</th>
+                            <th>Inactivity Period</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in inactive_users %}
+                        <tr>
+                            <td><strong>{{ user.testator_name }}</strong></td>
+                            <td><span class="text-danger fw-bold">{{ user.days_inactive }} Seconds</span></td>
+                            <td>
+                                <button onclick="runDMS('{{ user.user_email }}', '{{ user.id }}')" 
+                                        id="btn-dms-{{ user.id }}" class="btn btn-dms btn-sm">
+                                    Execute Smart Contract
+                                </button>
+                                
+                                <button onclick="activateUser('{{ user.id }}')" 
+                                        id="btn-active-{{ user.id }}" class="btn btn-success btn-sm ms-2 btn-active-manual">
+                                    ✅ Mark Active
+                                </button>
+
+                                <div id="manual-loader-{{ user.id }}" class="loader-text mt-2">🔗 Syncing with Polygon...</div>
+
+                                <div id="hash-container-{{ user.id }}" class="blockchain-link-box">
+                                    <small class="text-primary fw-bold">Polygon Proof:</small><br>
+                                    <div id="hash-{{ user.id }}" style="word-break: break-all;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="3" class="text-center py-3 text-muted">No inactive accounts detected.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <h2 class="mt-5 mb-4">📜 Death Certificate Verification</h2>
+        <div class="card shadow border-0">
+            <div class="card-body">
+                <h5 class="card-title text-primary">Pending Verifications (Identity Oracle)</h5>
+                <table class="table table-hover mt-3">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Testator Name</th>
+                            <th>Stored Aadhar Hash</th>
+                            <th>Blockchain Seal</th> 
+                            <th>Verification Input</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for will in wills %}
+                        <tr id="row-{{ will.id }}">
+                            <td>{{ will.testator_name }}</td>
+                            <td><code>{{ will.testator_aadhar }}</code></td>
+                            <td>
+                                <div class="btc-seal">
+                                    <small class="text-muted d-block">IPFS: {% if will.blockchain_hash %}{{ will.blockchain_hash[:10] }}...{% else %}No Hash{% endif %}</small>
+                                    <small style="color: #f7931a; font-weight: bold;">₿ BTC: SECURED</small>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group input-group-sm mb-1">
+                                    <input type="text" id="cert_{{ will.id }}" class="form-control" placeholder="Enter Cert ID">
+                                    <button onclick="triggerVerification('{{ will.id }}')" class="btn btn-danger">Verify & Release</button>
+                                </div>
+                                <div id="loader-{{ will.id }}" class="loader-text">📡 Connecting to Govt Oracle...</div>
+                                <div id="msg-{{ will.id }}" class="status-msg"></div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card shadow mt-5 border-success mb-4">
+            <div class="card-body">
+                <h5 class="card-title text-success">Verified & Released Wills ✅</h5>
+                <table class="table table-sm mt-3">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Testator Name</th>
+                            <th>Death Cert No.</th>
+                            <th>Status</th>
+                            <th>Blockchain Proof</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for will in active_wills %}
+                        <tr>
+                            <td>{{ will.testator_name }}</td>
+                            <td><span class="badge bg-secondary">{{ will.death_cert_no }}</span></td>
+                            <td><span class="badge bg-primary">Released</span></td>
+                            <td><code>{{ will.blockchain_hash[:15] }}...</code></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <h2 class="mt-5 mb-4">📜 System Audit Log (History)</h2>
+        <div class="card shadow border-0 history-card">
+            <div class="card-body">
+                <h5 class="card-title text-secondary"><i class="fas fa-history"></i> Activity Tracking</h5>
+                <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                    <table class="table table-sm table-hover align-middle">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>User</th>
+                                <th>Event</th>
+                                <th>Old Status</th>
+                                <th>New Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in activity_logs %}
+                            <tr>
+                                <td><small>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small></td>
+                                <td><strong>{{ log.username }}</strong></td>
+                                <td>
+                                    {% if log.event == 'MANUAL_ACTIVATE' %}
+                                        <span class="text-success fw-bold">Manual Reset</span>
+                                    {% elif log.event == 'DMS_BLOCKCHAIN_TRIGGER' %}
+                                        <span class="text-danger fw-bold">Blockchain Trigger</span>
+                                    {% else %}
+                                        <span class="text-info fw-bold">{{ log.event }}</span>
+                                    {% endif %}
+                                </td>
+                                <td><span class="badge bg-light text-dark">{{ log.old_status }}</span></td>
+                                <td><span class="badge bg-dark">{{ log.new_status }}</span></td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="5" class="text-center py-3 text-muted">No audit logs found.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. Charts
+        document.addEventListener('DOMContentLoaded', function() {
+            const pendingCount = {{ wills|length }};
+            const activeCount = {{ active_wills|length }};
+            new Chart(document.getElementById('statusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Released', 'Pending'],
+                    datasets: [{ data: [activeCount, pendingCount], backgroundColor: ['#198754', '#ffc107'] }]
+                },
+                options: { plugins: { legend: { position: 'bottom' } } }
+            });
+            new Chart(document.getElementById('syncChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Oracle Match', 'Node Sync', 'Data Integrity'],
+                    datasets: [{ label: 'Score %', data: [100, 99.9, 100], backgroundColor: '#0d6efd' }]
+                },
+                options: { scales: { y: { beginAtZero: true, max: 100 } } }
+            });
+        });
+
+        // 2. DMS Blockchain Trigger
+        function runDMS(walletAddress, userId) {
+            const btn = document.getElementById('btn-dms-' + userId);
+            const container = document.getElementById('hash-container-' + userId);
+            const hashDiv = document.getElementById('hash-' + userId);
+
+            if (confirm("Confirm real-world blockchain transfer to beneficiary?")) {
+                btn.disabled = true;
+                btn.innerHTML = "Processing...";
+
+                fetch('/trigger_dms_blockchain', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ address: walletAddress, user_id: userId })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        btn.innerHTML = "SUCCESS ✅";
+                        btn.className = "btn btn-success btn-sm";
+                        container.style.display = 'block';
+                        hashDiv.innerHTML = `<a href="https://amoy.polygonscan.com/tx/${data.tx_hash}" target="_blank" class="fw-bold">🚀 View Transaction Proof</a>`;
+                        setTimeout(() => location.reload(), 3000);
+                    } else {
+                        alert("Error: " + data.message);
+                        btn.disabled = false;
+                        btn.innerHTML = "Retry Execution";
+                    }
+                });
+            }
+        }
+
+        // 3. Manual Activation (MODIFIED FOR POLYGON LINK)
+        function activateUser(userId) {
+            if (confirm("Do you want to mark this user as active? This will reset the inactivity period and record on Polygon.")) {
+                const btn = document.getElementById('btn-active-' + userId);
+                const loader = document.getElementById('manual-loader-' + userId);
+                const container = document.getElementById('hash-container-' + userId);
+                const hashDiv = document.getElementById('hash-' + userId);
+
+                btn.disabled = true;
+                btn.innerHTML = "Wait...";
+                loader.style.display = 'block';
+
+                fetch('/activate_user/' + userId, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    loader.style.display = 'none';
+                    if(data.success) {
+                        btn.innerHTML = "✅ ACTIVE";
+                        btn.className = "btn btn-outline-success btn-sm ms-2";
+                        
+                        // Show Polygon Link
+                        if(data.tx_hash) {
+                            container.style.display = 'block';
+                            hashDiv.innerHTML = `<a href="https://amoy.polygonscan.com/tx/${data.tx_hash}" target="_blank" class="fw-bold text-decoration-none">🔗 View Blockchain Reset Proof</a>`;
+                        }
+                        
+                        alert("User Safety Status Reset on Blockchain!");
+                        // Optional: reload after 4 seconds to see history table update
+                        setTimeout(() => location.reload(), 4000);
+                    } else {
+                        alert("Error: " + data.message);
+                        btn.disabled = false;
+                        btn.innerHTML = "✅ Mark Active";
+                    }
+                });
+            }
+        }
+
+        // 4. Death Verification
+        function triggerVerification(willId) {
+            const certNo = document.getElementById('cert_' + willId).value;
+            const loader = document.getElementById('loader-' + willId);
+            const msg = document.getElementById('msg-' + willId);
+
+            if (!certNo) { alert("Please enter the Death Certificate Number!"); return; }
+
+            loader.style.display = 'block';
+            fetch('/verify_death/' + willId, { 
+                method: 'POST', 
+                body: new URLSearchParams({'death_cert_number': certNo}) 
+            })
+            .then(response => response.json())
+            .then(data => {
+                loader.style.display = 'none';
+                if (data.status === 'success') {
+                    msg.innerHTML = "✅ Verified!";
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    alert("Verification Failed!");
+                }
+            });
+        }
+    </script>
+</body>
+</html>

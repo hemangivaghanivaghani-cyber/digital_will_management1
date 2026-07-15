@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Access | Digital Will Vault</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="auth-page"> <div class="auth-container"> <div class="logo-box">🛡️</div>
+        
+        <h2>Secure Access</h2>
+        <p>Unlock your encrypted digital legacy vault.</p>
+        
+        <form action="/send-otp" method="POST">
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" name="email" placeholder="name@example.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Master Password</label>
+                <input type="password" name="password" placeholder="••••••••" required>
+            </div>
+            
+            <button type="submit" class="btn-primary">Authorize & Send OTP</button>
+        </form>
+        
+        <div class="footer-text">
+            New to the Vault? <a href="/signup">Create secure account</a>
+        </div>
+
+        <div class="security-badge" style="margin-top: 25px; font-size: 0.75rem; color: #94a3b8; display: flex; align-items: center; justify-content: center; gap: 5px;">
+            🔒 AES-256 Bit Encrypted Connection
+        </div>
+    </div>
+
+</body>
+</html>

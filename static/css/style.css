@@ -1,0 +1,87 @@
+/* --- Google Fonts --- */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --sidebar-bg: #0f172a;
+    --white: #ffffff;
+    --bg-light: #f8fafc;
+    --bg-auth: radial-gradient(circle at top right, #1e293b, #0f172a); 
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-light); color: #1e293b; }
+
+/* --- LOGIN / REGISTER / OTP સેન્ટર લેઆઉટ --- */
+body.auth-page {
+    background: var(--bg-auth) !important;
+    height: 100vh !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.auth-container {
+    background: var(--white) !important;
+    padding: 3rem !important;
+    border-radius: 28px !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+    width: 100%;
+    max-width: 440px;
+    text-align: center;
+}
+
+.logo-box {
+    background: #eef2ff;
+    width: 70px; height: 70px; line-height: 75px;
+    border-radius: 20px; margin: 0 auto 1.5rem;
+    font-size: 35px; color: var(--primary);
+}
+
+/* --- DASHBOARD લેઆઉટ (જેથી ડેશબોર્ડ બગડે નહીં) --- */
+.sidebar {
+    width: 260px;
+    background-color: var(--sidebar-bg);
+    height: 100vh;
+    position: fixed;
+    top: 0; left: 0;
+    padding: 30px 20px;
+}
+
+.main-wrapper {
+    margin-left: 260px;
+    padding: 40px;
+    min-height: 100vh;
+    background: var(--bg-light);
+}
+
+/* --- COMMON ELEMENTS (બંને માટે) --- */
+.form-group { text-align: left; margin-bottom: 1.5rem; }
+label { font-size: 0.875rem; font-weight: 700; display: block; margin-bottom: 8px; }
+
+input, select, textarea {
+    width: 100% !important;
+    padding: 14px 16px !important;
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 14px !important;
+    font-size: 1rem !important;
+}
+
+.btn-primary {
+    background: var(--primary) !important;
+    color: white !important;
+    padding: 16px !important;
+    border: none !important;
+    border-radius: 14px !important;
+    font-weight: 700 !important;
+    width: 100% !important;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3); }
+
+.footer-text { margin-top: 1.5rem; font-size: 0.9rem; color: #64748b; }
+.footer-text a { color: var(--primary); font-weight: 700; text-decoration: none; }

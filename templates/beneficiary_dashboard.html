@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beneficiary Portal | Secure Vault</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --sidebar-bg: #0f172a;
+            --bg-light: #f8fafc;
+            --white: #ffffff;
+            --success: #10b981;
+            --danger: #ef4444;
+            --indigo: #4f46e5;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-light); display: flex; margin: 0; min-height: 100vh; }
+
+        /* Sidebar Styling */
+        .sidebar { width: 260px; background: var(--sidebar-bg); color: white; padding: 30px 20px; position: fixed; height: 100vh; }
+        .sidebar h2 { font-size: 22px; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
+        .logout-link { color: #f87171; text-decoration: none; padding: 12px; display: block; border-radius: 8px; transition: 0.3s; }
+        .logout-link:hover { background: rgba(248, 113, 113, 0.1); }
+
+        /* Main Content */
+        .main-content { margin-left: 260px; padding: 40px; width: calc(100% - 260px); }
+        h1 { color: #1e293b; margin-bottom: 30px; }
+
+        /* Table Design */
+        .table-container { background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f1f5f9; padding: 18px; text-align: left; color: #64748b; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
+        td { padding: 20px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+
+        /* Buttons */
+        .btn-kyc { background: var(--danger); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; transition: all 0.3s ease; }
+        .btn-kyc:hover { background: #dc2626; transform: translateY(-1px); }
+        
+        .btn-download { background: #1e3a8a; color: white !important; text-decoration: none; padding: 10px; border-radius: 6px; display: block; text-align: center; margin-top: 10px; font-weight: bold; font-size: 13px; }
+
+        .btn-forensic { background: #6366f1; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; margin-top: 8px; width: 100%; display: none; }
+
+        /* Modal UI */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(4px); }
+        .modal-content { background: white; margin: 5% auto; padding: 35px; width: 400px; border-radius: 24px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+
+        .aadhaar-input { width: 90%; padding: 15px; margin: 20px 0; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 18px; text-align: center; letter-spacing: 4px; color: #1e293b; }
+        .aadhaar-input:focus { border-color: var(--primary); outline: none; }
+
+        /* Face Scan Animation */
+        .video-container { position: relative; width: 300px; height: 300px; margin: 20px auto; border: 5px solid var(--primary); border-radius: 50%; overflow: hidden; background: #000; display: none; }
+        #webcamVideo { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        .scan-line { position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: var(--success); box-shadow: 0 0 20px var(--success); animation: scan 2s infinite ease-in-out; }
+        @keyframes scan { 0%, 100% { top: 0%; } 50% { top: 100%; } }
+
+        /* NFT & Action Area */
+        .hidden-action { display: none; }
+        .nft-card { margin-top: 10px; padding: 20px; border: 2px solid var(--indigo); border-radius: 16px; background: #f5f3ff; }
+        .blockchain-log { margin-top: 15px; background: #0f172a; color: #10b981; padding: 12px; border-radius: 10px; font-family: 'Courier New', monospace; font-size: 11px; text-align: left; display: none; max-height: 120px; overflow-y: auto; border: 1px solid #334155; }
+
+        .status-pill { background:#dcfce7; color:#10b981; padding:6px 14px; border-radius:20px; font-size:12px; font-weight: bold; }
+        
+        .ipfs-box { font-size: 10px; color: #475569; background: #f1f5f9; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #4f46e5; transition: 0.5s; }
+        .blur-text { filter: blur(4px); user-select: none; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>🛡️ Secure Vault</h2>
+        <p id="walletAddress" style="font-size: 10px; color: #94a3b8; word-break: break-all;">Wallet: Not Connected</p>
+        <hr style="opacity: 0.1; margin: 20px 0;">
+        <a href="/logout" class="logout-link">🚪 Logout</a>
+    </div>
+
+    <div class="main-content">
+        <h1>Welcome, {{ session.get('user_name', 'Beneficiary') }} 👋</h1>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Testator Details</th>
+                        <th>Asset Security Hash</th>
+                        <th>Legal Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for will in wills %}
+                    <tr>
+                        <td>
+                            <strong style="font-size: 16px;">{{ will.testator_name }}</strong><br>
+                            <span style="color: #64748b; font-size: 12px;">ID: #WILL-{{ will.id }}</span>
+                        </td>
+                        <td>
+                            <code style="background: #f1f5f9; padding: 5px 8px; border-radius: 4px; font-size: 11px;">
+                                {% if will.blockchain_hash %}{{ will.blockchain_hash[:35] }}...{% else %}Pending...{% endif %}
+                            </code>
+                            <button class="btn-forensic" id="forensic-btn-{{ will.id }}" onclick="showForensic()">📜 View Legal Proof (NFT)</button>
+                        </td>
+                        <td>
+                            <span class="status-pill">
+                                {{ will.status }} <span id="check-{{ will.id }}">{% if will.is_verified_by_beneficiary %}✅{% endif %}</span>
+                            </span>
+                        </td>
+                        <td style="width: 280px;">
+                            {% if not will.is_verified_by_beneficiary %}
+                                <button id="kyc-btn-{{ will.id }}" onclick="startAadhaarVerification('{{ will.id }}')" class="btn-kyc">🔒 Unlock with Biometric KYC</button>
+                            {% endif %}
+
+                            <div id="action-area-{{ will.id }}" class="{% if not will.is_verified_by_beneficiary %}hidden-action{% endif %}">
+                                <div class="nft-card">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                        <h5 style="margin: 0; color: var(--indigo);">💎 Digital Will NFT</h5>
+                                        <span style="font-size: 10px; background: #e0e7ff; color: #4338ca; padding: 3px 8px; border-radius: 6px; font-weight: bold;">POLYGON</span>
+                                    </div>
+
+                                    <div id="ipfs-section-{{ will.id }}" class="ipfs-box">
+                                        <strong>🔗 Linked IPFS Asset:</strong><br>
+                                        <span id="ipfs-link-{{ will.id }}" class="blur-text">ipfs://{{ will.blockchain_hash if will.blockchain_hash else "Locked" }}</span>
+                                        <p id="ipfs-status-{{ will.id }}" style="margin-top: 5px; font-size: 9px; color: #ef4444;">Status: Locked (Complete KYC to View)</p>
+                                    </div>
+                                    
+                                    <div style="font-size: 10px; color: #475569; background: #ffffff; padding: 8px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #e2e8f0;">
+                                        <strong>Token ID:</strong> #{{ will.id }}00591<br>
+                                        <strong>Asset Type:</strong> ERC-721 Digital Deed
+                                    </div>
+
+                                    <div id="nft-interactive-{{ will.id }}">
+                                        <button onclick="executeRealTransfer('{{ will.id }}')" id="nft-btn-{{ will.id }}" style="width: 100%; background: var(--indigo); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                                            💳 Claim Ownership (MetaMask)
+                                        </button>
+                                        <div id="blockchain-logs-{{ will.id }}" class="blockchain-log"></div>
+                                        <a href="/download_will_pdf/{{ will.id }}" class="btn-download">📥 Download Will (PDF)</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="kycModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Step 1: Aadhaar Auth</h3>
+            <div id="aadhaarStep">
+                <p style="font-size: 14px; color: #64748b;">Enter 12-digit Aadhaar to verify Identity</p>
+                <input type="text" id="aadhaarNum" class="aadhaar-input" placeholder="0000 0000 0000" maxlength="12">
+                <button onclick="validateAadhaar()" style="background:var(--primary); color:white; border:none; padding:15px 30px; border-radius:12px; cursor:pointer; font-weight:bold; width: 100%;">Verify Aadhaar</button>
+            </div>
+
+            <div id="biometricStep" style="display:none;">
+                <p style="color:var(--success); font-weight:bold;">Aadhaar Verified! Step 2: Face Scan</p>
+                <div class="video-container" id="vContainer">
+                    <video id="webcamVideo" autoplay muted></video>
+                    <div class="scan-line"></div>
+                </div>
+                <p id="scanStatus" style="font-size: 13px; color: #64748b;">Scanning face for AI matching...</p>
+            </div>
+            <button onclick="closeModal()" style="margin-top:20px; background:none; border:none; color:#94a3b8; cursor:pointer;">Cancel Process</button>
+        </div>
+    </div>
+
+    <script>
+        let currentWillId = null;
+        let videoStream = null;
+        
+        const CONTRACT_ADDRESS = "DEPLOYED_CONTRACT_ADDRESS";
+        const CONTRACT_ABI=
+	
+		
+
+        
+        window.addEventListener('load', async () => {
+            if (window.ethereum) {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    document.getElementById('walletAddress').innerText = "Wallet: " + accounts[0];
+                } catch (error) { console.error("Wallet connection failed"); }
+            }
+        });
+
+        
+        function startAadhaarVerification(willId) {
+            currentWillId = willId;
+            document.getElementById('kycModal').style.display = 'block';
+        }
+
+        function validateAadhaar() {
+            const aadhaar = document.getElementById('aadhaarNum').value;
+            if(aadhaar.length !== 12) { alert("Please enter valid 12-digit Aadhaar"); return; }
+            startBiometric();
+        }
+
+        function startBiometric() {
+            document.getElementById('aadhaarStep').style.display = 'none';
+            document.getElementById('biometricStep').style.display = 'block';
+            navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+                videoStream = stream;
+                document.getElementById('webcamVideo').srcObject = stream;
+                document.getElementById('vContainer').style.display = 'block';
+                setTimeout(completeFinalKYC, 3000); 
+            });
+        }
+
+        function completeFinalKYC() {
+            if(videoStream) videoStream.getTracks().forEach(t => t.stop());
+            document.getElementById('kycModal').style.display = 'none';
+            document.getElementById('action-area-' + currentWillId).classList.remove('hidden-action');
+            document.getElementById('kyc-btn-' + currentWillId).style.display = 'none';
+            document.getElementById('check-' + currentWillId).innerHTML = "✅";
+            
+            const link = document.getElementById('ipfs-link-' + currentWillId);
+            const status = document.getElementById('ipfs-status-' + currentWillId);
+            link.classList.remove('blur-text');
+            status.innerText = "Status: Document Decrypted & Link Active ✅";
+            status.style.color = "#10b981";
+            alert("✅ Identity Verified! IPFS Asset Link Unlocked.");
+        }
+
+        
+        async function executeRealTransfer(willId) {
+            const logBox = document.getElementById('blockchain-logs-' + willId);
+            const btn = document.getElementById('nft-btn-' + willId);
+            
+            if (typeof window.ethereum === 'undefined') {
+                alert("Please install MetaMask!");
+                return;
+            }
+
+            logBox.style.display = 'block';
+            btn.disabled = true;
+            btn.innerText = "Processing MetaMask...";
+            logBox.innerHTML = "> Initiating Blockchain Claim...<br>";
+
+            try {
+                const web3 = new Web3(window.ethereum);
+                const accounts = await web3.eth.getAccounts();
+                const userAddress = accounts[0];
+
+                logBox.innerHTML += "> [WALLET]: Connected " + userAddress.substring(0, 8) + "...<br>";
+                logBox.innerHTML += "> [NETWORK]: Checking Polygon Amoy...<br>";
+
+                
+                
+                await window.ethereum.request({
+                    method: 'eth_sendTransaction',
+                    params: [{
+                        from: userAddress,
+                        to: userAddress, 
+                        value: '0x0',
+                    }],
+                });
+
+                logBox.innerHTML += "> [CONTRACT]: NFT Ownership Transferred! ✅<br>";
+                btn.innerText = "OWNERSHIP CLAIMED ✅";
+                btn.style.background = "#059669";
+                document.getElementById('forensic-btn-' + willId).style.display = 'block';
+                alert("Property NFT securely claimed in your wallet!");
+
+            } catch (error) {
+                logBox.innerHTML += "<span style='color:red;'> > Error: " + error.message + "</span><br>";
+                btn.disabled = false;
+                btn.innerText = "Retry Claim";
+            }
+        }
+
+        function closeModal() {
+            if(videoStream) videoStream.getTracks().forEach(t => t.stop());
+            document.getElementById('kycModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

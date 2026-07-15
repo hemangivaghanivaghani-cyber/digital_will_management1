@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bitcoin Network Explorer | Global Node</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0b0f19; color: #e2e8f0; margin: 0; padding: 20px; }
+        .network-container { max-width: 900px; margin: 30px auto; border: 1px solid #1e293b; border-radius: 12px; background: #111827; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .header { background: #1f2937; padding: 20px; border-bottom: 2px solid #f7931a; display: flex; justify-content: space-between; align-items: center; }
+        .status-dot { height: 10px; width: 10px; background-color: #10b981; border-radius: 50%; display: inline-block; margin-right: 5px; animation: blink 1.5s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 30px; }
+        .info-box { background: #1e293b; padding: 15px; border-radius: 8px; border-left: 4px solid #f7931a; }
+        .label { color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+        .value { color: #f3f4f6; font-family: 'Courier New', monospace; word-break: break-all; font-size: 14px; margin-top: 5px; display: block; }
+        .footer { background: #1f2937; padding: 20px; text-align: center; }
+        .btn-back { background: #f7931a; color: white; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; transition: 0.3s; }
+        .btn-back:hover { background: #e27e06; transform: scale(1.05); }
+    </style>
+</head>
+<body>
+
+<div class="network-container">
+    <div class="header">
+        <div>
+            <h2 style="margin: 0; color: #f7931a;">₿ BITCOIN NETWORK MONITOR</h2>
+            <small style="color: #94a3b8;">Decentralized Verification Node Active</small>
+        </div>
+        <div>
+            <span class="status-dot"></span> 
+            <span style="color: #10b981; font-weight: bold; font-size: 14px;">STATUS: {{ net.status }}</span>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="info-box" style="grid-column: span 2;">
+            <span class="label">Cryptographic Anchor (SHA-256 Double-Hash)</span>
+            <span class="value" style="color: #f7931a; font-size: 18px; font-weight: bold;">{{ will.bitcoin_hash }}</span>
+        </div>
+        
+        <div class="info-box" style="grid-column: span 2;">
+            <span class="label">IPFS Pointer (Document Location)</span>
+            <span class="value" style="color: #60a5fa;">ipfs://{{ will.blockchain_hash }}</span>
+        </div>
+
+        <div class="info-box">
+            <span class="label">Anchored Block Height</span>
+            <span class="value" style="font-size: 20px;">#{{ net.block_height }}</span>
+        </div>
+
+        <div class="info-box">
+            <span class="label">Network Nodes Globally</span>
+            <span class="value" style="font-size: 20px;">{{ net.nodes }}</span>
+        </div>
+
+        <div class="info-box">
+            <span class="label">Testator Identification Binder</span>
+            <span class="value">{{ will.testator_name }} (UID: {{ will.testator_aadhar[:4] }}XXXX)</span>
+        </div>
+
+        <div class="info-box">
+            <span class="label">Verification Timestamp</span>
+            <span class="value">{{ will.timestamp.strftime('%Y-%m-%d %H:%M:%S') }} UTC</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">
+            This transaction is secured by the Bitcoin Mainnet Proof-of-Work (PoW). <br>
+            It is mathematically impossible to alter this record without changing the network consensus.
+        </p>
+        <a href="javascript:history.back()" class="btn-back">← Back to Dashboard</a>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Digital Will Vault</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="auth-page"> <div class="auth-container"> <div class="logo-box">📝</div>
+        <h2>Register Identity</h2>
+        <p>Join the secure digital legacy network</p>
+        
+        <form action="/signup" method="POST">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" name="name" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" name="email" placeholder="name@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label>System Role</label>
+                <select name="role">
+                    <option value="Testator">Testator (Will Creator)</option>
+                    <option value="Lawyer">Lawyer (Verifier)</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Beneficiary">Beneficiary</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-primary">Create Secure Account</button>
+        </form>
+        
+        <div class="footer-text">
+            Already have an account? <a href="/">Sign In here</a>
+        </div>
+
+        <div class="security-badge" style="margin-top: 20px; font-size: 0.8rem; color: #94a3b8;">
+            🔒 End-to-End Encrypted Registration
+        </div>
+    </div>
+</body>
+</html>
